@@ -1,0 +1,156 @@
+% classe du document
+\documentclass[11pt,a4paper]{report}
+
+% packages
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage[francais]{babel} 
+\usepackage{lipsum}
+\usepackage{footnote}
+\usepackage{cases}
+\selectlanguage{francais}
+\usepackage{lastpage}
+\usepackage{fancybox}
+\usepackage{framed}
+
+% insertion d'image
+\usepackage{graphicx}
+\usepackage{float} % pour le placement des images
+\usepackage{subfig} % pour mettre des figures cote-a-cote
+\usepackage{epsf} % pour separer une page en deux (minipage)
+\usepackage{multicol} % pour creer des colonnes (multicol)
+\graphicspath{	{Ressources/images/}
+			{Ressources/Logos/}
+			{Ressources/Graphiques/}} % Chemin predefinit pour classer les images
+\DeclareGraphicsExtensions{.pdf,.png,.jpg} % declaration des extensions pour ne pas les ecrire tout le temps
+
+% style de mise en page
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm,left=2.5cm, right=2.3cm}
+\headheight = 20pt
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{\entetegauche}
+\chead{}
+\rhead{\entetedroite}
+\lfoot{}
+\cfoot{}
+\rfoot{\thepage}
+
+% creation graphique
+\usepackage[usenames, dvipsnames]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{shapes}
+
+% listings
+\usepackage{verbatim}
+%\usepackage{listings}
+\usepackage[procnames]{listings}
+%\usepackage{xcolor}
+\definecolor{grey}{rgb}{0.96,0.96,0.96}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{red}{rgb}{1,0,0}
+
+\definecolor{keywords}{RGB}{255,0,90}
+\definecolor{comments}{RGB}{0,0,113}
+\definecolor{red}{RGB}{160,0,0}
+\definecolor{green}{RGB}{0,150,0}
+
+\lstset{
+backgroundcolor=\color{grey}, 
+breaklines=true, 
+framexleftmargin=1mm, 
+xleftmargin=5mm,
+xrightmargin=1mm,
+showstringspaces=false,
+basicstyle=\scriptsize,%\small,
+identifierstyle=\normalfont,
+% insertion label : //(*\label{comment}*)
+}
+
+\lstset{literate=
+	{æ}{{\ae}}1
+	{å}{{\aa}}1
+	{ø}{{\o}}1
+	{Æ}{{\AE}}1
+	{Å}{{\AA}}1
+	{Ø}{{\O}}1
+	{é}{{\'e}}1
+	{è}{{\`e}}1
+	{à}{{\`a}}1
+	{É}{{\'E}}1
+	{È}{{\`E}}1
+	{À}{{\`A}}1
+	{Ä}{{\¨a}}1
+	{©}{{\copyright}}1
+	{‐}{{-}}1
+	{ù}{{\`u}}1
+	{ô}{{\^o}}1
+}
+
+%\lstset{language=Python, 
+%        basicstyle=\ttfamily\small, 
+%        keywordstyle=\color{keywords},
+%        commentstyle=\color{comments},
+%        stringstyle=\color{red},
+%        showstringspaces=false,
+%        identifierstyle=\color{green},
+%        procnamekeys={def,class}}
+
+\lstdefinestyle{Console}{
+	showspaces=false,
+	backgroundcolor=	\color{black},
+	basicstyle=		\color{White}\scriptsize, 
+	keywordstyle=		\color{White}\scriptsize, 
+	commentstyle=	\color{White}, 
+	stringstyle=		\color{White},
+	title=\lstname
+	}
+	
+
+\lstdefinestyle{C}{
+	language=c, showspaces=false, 
+	keywordstyle=		\color{blue}\scriptsize, 
+	commentstyle=	\color{dkgreen}\scriptsize\sffamily,  
+	stringstyle=		\color{mauve}\scriptsize, 
+	title=\lstname,
+	escapeinside={//(*}{*)},
+	morekeywords={},
+	numbers = left, numberstyle=\tiny\color{black}}
+
+\lstdefinestyle{Matlab}{
+	language=Matlab, showspaces=false, 
+	keywordstyle=		\color{blue}\scriptsize, 
+	commentstyle=	\color{dkgreen}\scriptsize\sffamily,  
+	stringstyle=		\color{mauve}\scriptsize, 
+	title=\lstname,
+	escapeinside={(*}{*)},
+	morekeywords={},
+	numbers = left, numberstyle=\tiny\color{black}}
+	
+% commandes custom
+\providecommand{\abs}[1]{\lvert#1\rvert} % valeur absolue
+\providecommand{\norm}[1]{\lVert#1\rVert} % norme
+\providecommand{\der}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}} % derivee
+\newcommand{\tmp}[1]{{\color{red}\textbf{\\#1\\} \marginpar{\color{red}\Huge{\Huge{*}}}}} % note temoraire dans la marge
+\newcommand{\tmpnew}[1]{{\color{red}\Huge{*}}\marginpar{\color{red}#1}} % note temoraire dans la marge new
+\newcommand{\rem}[1]{\textit{\\ Remarque : {#1}\\}} % note temporaire dans le texte
+
+
+% Couleur disponibles avec xcolor
+%  – De jaune à orange : GreenYellow, Yellow, Goldenrod, Dandelion, Apricot, Peach, Melon, YellowOrange,
+%  – De orange à rouge : Orange, BurntOrange, Bittersweet, RedOrange, Mahogany, Maroon, BrickRed, Red,
+%  – De rouge à rose : OrangeRed, RubineRed, WildStrawberry, Salmon, CarnationPink, Magenta, VioletRed, Rhodamine,
+%  – De rose à violet : Mulberry, RedViolet, Fuchsia, Lavender, Thistle, Orchid, DarkOrchid, Purple,
+%  – De violet à bleu : Plum, Violet, RoyalPurple, BlueViolet, Periwinkle, CadetBlue, CornflowerBlue, MidnightBlue,
+%  – De bleu à bleu clair : NavyBlue, RoyalBlue, Blue, Cerulean, Cyan, ProcessBlue, SkyBlue, Turquoise
+%  – De bleu clair à vert : TealBlue, Aquamarine, BlueGreen, Emerald, JungleGreen, SeaGreen, Green, ForestGreen,
+%  – De vert à brun : PineGreen, LimeGreen, YellowGreen, SpringGreen, OliveGreen, RawSienna, Sepia, Brown, Tan
+
+
+
+
+
+

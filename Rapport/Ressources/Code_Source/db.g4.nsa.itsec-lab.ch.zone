@@ -1,0 +1,18 @@
+$ORIGIN g4.nsa.itsec-lab.ch.
+$TTL 86400
+@ IN SOA g4.nsa.itsec-lab.ch. root.g4.nsa.itsec-lab.ch. (
+							2014042405
+							3600
+							900
+							604800
+							86400 )
+; Descriptions of names servers of this domain (primary and secondary)
+	IN NS ns1.g4.nsa.itsec-lab.ch.
+	IN NS nsans01.tic.eia-fr.ch.
+	IN MX 10 160.98.34.100
+
+; List of known hosts in this domain
+ns1 	IN A 160.98.21.128
+mail 	IN A 160.98.34.100
+www 	IN CNAME ns1
+bank	IN A 193.5.111.18

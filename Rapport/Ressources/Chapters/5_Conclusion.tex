@@ -1,0 +1,16 @@
+% Chapter Template
+
+\chapter{Conclusion} % Main chapter title
+
+\label{Conclusion} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+
+\lhead{ \emph{Conclusion}} % Change X to a consecutive number; this is for the header on each page - perhaps a shortened title
+
+
+Ce laboratoire nous a permis de mettre en pratique la théorie vue en cours ainsi que de rafraîchir nos connaissances précédentes sur Linux embarqué. Les systèmes embarqué étant "limités" (cette affirmation est aujourd'hui à moitié vraie... Notre plate-forme est tout de même dotée d'un octo-coeur ARM et de beaucoup de mémoire vive. Mais ce n'est pas forcément le cas de tous les systèmes sur le marché) en performances nécessitent un traitement particulier quand à leur sécurité.\\ 
+
+On peut facilement prendre ces systèmes et en extraire les données. Une partie de la sécurité peut être crée à la conception hardware du système (protection des ports JTAG, etc...), mais le reste doit être géré au niveau du software. \\
+
+Nous avons vu quelques techniques de protections en modifiant les variables de compilation. L'utilisation de la cryptographie devrait être mieux appliquée au niveau du bootloader (notre version ne la support pas, mais elle existe dans les versions supérieure). Contrôler le noyau chargé en mémoire par un hash et/ou une signature (avec ou sans certificats) serait adéquat.    
+
+La protection du système de fichiers fait partie de la seconde partie du laboratoire.

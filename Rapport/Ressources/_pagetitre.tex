@@ -1,0 +1,73 @@
+
+\begin{titlepage}
+%marge du haut et grande marge sur la page
+%\headsep          = -10.mm
+%\enlargethispage{5cm}
+
+\begin{center} 
+\hspace{12.45cm}
+\includegraphics[width=10cm]{MSE_Logo.jpg}
+\end{center}
+\vspace{5cm}
+% cette commande insert un espace de proportion 1 (par rapport au autre espace insert dans la mÍme apge)
+% 1/3 espace, puis ligne
+\noindent \rule{\linewidth}{1mm}
+\begin{center}
+\medskip
+{\Huge \nomtitre}\\
+\bigskip
+
+\begin{minipage}{0.75 \textwidth}
+\begin{center}
+{\Large \sousTitre}\\
+\end{center}
+\end{minipage}~\\
+
+
+\vspace{0.6cm}
+\begin{minipage}{0.75 \textwidth}
+\begin{center}
+{\Large \LaboName}\\
+\end{center}
+\end{minipage}~\\
+
+\vspace{0.6cm}
+\rule{1cm}{0.3mm}\\
+\vspace{0.5cm}
+
+\large \auteurs\\
+\medskip
+\dateCreation
+
+% ligne, puis 1/3 espace
+\noindent \rule{\linewidth}{1mm}
+\vspace{3cm}
+
+% Le complement d'information
+
+%les logos des entreprises
+
+\begin{center}
+
+  \small \ecole \\
+  %\small Ecole d'IngÈnieurs d'Yverdon-les-Bains \\
+  \small \depart
+  
+\end{center}
+
+\vspace{3.65cm}
+
+%les noms (le "&" sÈpart les colonnes)
+\small
+{
+\begin{tabular}{l@{: }l}
+Professeur&\nomProf\\
+Branche&\branche\\
+Salle de laboratoire&\salle\\
+Dernière mise à jour &\today\\
+\end{tabular} }
+
+\end{center} 
+\end{titlepage}
+
+\newpage
