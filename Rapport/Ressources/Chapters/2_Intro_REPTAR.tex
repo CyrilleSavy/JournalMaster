@@ -1,0 +1,38 @@
+% Chapter Template
+
+\chapter{Introduction REPTAR} % Main chapter title
+
+\label{Chapitre 2} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+
+\lhead{ \emph{Introduction REPTAR}} % Change X to a consecutive number; this is for the header on each page - perhaps a shortened title
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1
+%----------------------------------------------------------------------------------------
+\section{Manipulations}
+
+Comme mentionné dans la donnée du laboratoire, les sous chapitres suivant vont présenter le résultat des manipulations effectuée en groupe de deux.
+
+\subsection{Manipulation 5}
+Le but de cette manipulation est de déployer une application simple qui fonctionne premièrement dans U-Boot, et ensuite dans Linux.\\
+
+Voici les manipluation effectuée pour le déployement dans U-Boot :
+\begin{enumerate}
+\item Compiler le projet "helloworld\_uboot" dans eclipse.
+\item Copier le fichier "helloworld.bin", résultat de la compilation, dans le dossier /home/redsuser/tftpboot (pour avoir accès depuis le serveur de fichier)
+\item Dans U-Boot, faire la commande suivante : "setenv appExample tftp 0x81600000 helloworld.bin". Cela nous permet de copier le binaire en mémoire à l'adresse 0x81600000.
+\item Dans U-Boot, faire la commande suivante : "run appExample". Cela nous permet de lancer la copie, comme expliqué précédemment.
+\item Dans U-Boot, faire la commande suivante : "go 0x81600000". Cela nous permet de lancer l'application.\\
+\end{enumerate}
+
+Voici les manipluation effectuée pour le déployement dans Linux :
+\begin{enumerate}
+\item Compiler le projet "helloworld\_linux" dans eclipse.
+\item Copier le fichier "helloworld", résultat de la compilation, dans le dossier /home/redsuser/tftpboot (pour avoir accès depuis le serveur de fichier)
+\item Insérer la carte SD dans la carte REPTAR (après l'avoir correctement alimentée), afin de "booter" sur linux.
+\item Depuis Linux : "tftp ... "
+\end{enumerate}
+
+\pagebreak
+\subsection{Manipulation 6}
+
