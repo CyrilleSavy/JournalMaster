@@ -25,13 +25,30 @@ Voici les manipluation effectuée pour le déployement dans U-Boot :
 \item Dans U-Boot, faire la commande suivante : "go 0x81600000". Cela nous permet de lancer l'application.\\
 \end{enumerate}
 
+Voici ci-dessous le résultat obtenu de l'exécution : 
+
+\begin{center} 
+\hspace{12.45cm}
+\includegraphics[width=15cm]{uboot_hello_result.png}
+\end{center}
+\vspace{1cm} 
+
+\pagebreak
+
 Voici les manipluation effectuée pour le déployement dans Linux :
 \begin{enumerate}
 \item Compiler le projet "helloworld\_linux" dans eclipse.
-\item Copier le fichier "helloworld", résultat de la compilation, dans le dossier /home/redsuser/tftpboot (pour avoir accès depuis le serveur de fichier)
 \item Insérer la carte SD dans la carte REPTAR (après l'avoir correctement alimentée), afin de "booter" sur linux.
-\item Depuis Linux : "tftp ... "
+\item Depuis la cible, nous allons utiliser la commande "scp" pour télécharger le fichier "helloworld" par "ssh" sur la machine de développement.
 \end{enumerate}
+
+Voici le résultat de la commande "scp", ainsi que l'exécution du programme sur la cible : 
+
+\begin{center} 
+\hspace{12.45cm}
+\includegraphics[width=15cm]{linux_scp.png}
+\end{center}
+\vspace{1cm} 
 
 \pagebreak
 \subsection{Manipulation 6}
