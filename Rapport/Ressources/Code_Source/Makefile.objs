@@ -1,0 +1,3 @@
+# REPTAR
+obj-$(CONFIG_REPTAR) += reptar.o
+obj-$(CONFIG_REPTAR) += reptar_sp6.o reptar_sp6_buttons.o reptar_sp6_emul.o reptar_sp6_clcd.o reptar_sp6_leds.o reptar_sp6_irq.o reptar_sp6_7segs.o
