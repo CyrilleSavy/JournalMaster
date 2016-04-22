@@ -42,7 +42,6 @@ static uint64_t sp6_read(void *opaque, hwaddr addr, unsigned size) {
 		DBG("sp6_read %08x bytes @%08x\n", (uint32_t )size, (uint32_t )addr);
 		break;
 	case SP6_LED:
-		// TODO, call leds implementation
 		ret_value = reptar_sp6_leds_read();
 		break;
 	default:
@@ -79,18 +78,20 @@ static void sp6_write(void *opaque, hwaddr addr, uint64_t value, unsigned size) 
 				(uint32_t )value, (uint32_t )addr);
 		break;
 	case SP6_LED:
-		// TODO, call leds implementation
 		reptar_sp6_leds_write((uint8_t) value);
 		break;
 	default:
 		DBG("Error, no valid register address!\n");
 		break;
 	}
-
 }
 
-static const MemoryRegionOps sp6_ops = { .read = sp6_read, .write = sp6_write,
-		.endianness = DEVICE_NATIVE_ENDIAN, };
+
+static const MemoryRegionOps sp6_ops = { 
+	.read = sp6_read, 
+	.write = sp6_write,
+	.endianness = DEVICE_NATIVE_ENDIAN, 
+	};
 
 static int sp6_initfn(SysBusDevice *sbd) {
 	DeviceState *dev = DEVICE(sbd);
@@ -104,15 +105,11 @@ static int sp6_initfn(SysBusDevice *sbd) {
 
 	sysbus_init_irq(sbd, &s->irq);
 
-//    s->irq_pending = 0;
-//    s->irq_enabled = 0;
-
 	sp6_emul_init();
 	reptar_sp6_leds_init(s);
 	reptar_sp6_btns_init(s);
 	reptar_sp6_irq_init(s);
 	reptar_sp6_7segs_init(s);
-	//reptar_clcd_init();
 
 	DBG("sp6_initfn : initialization de la FPGA...\n");
 
@@ -129,9 +126,12 @@ static void sp6_init(Object *obj) {
 	// do nothing...
 }
 
-static const TypeInfo reptar_sp6_info = { .name = "reptar_sp6", .parent =
-		TYPE_SYS_BUS_DEVICE, .instance_size = sizeof(sp6_state_t),
-		.instance_init = sp6_init, .class_init = sp6_class_init, };
+static const TypeInfo reptar_sp6_info = { 
+	.name = "reptar_sp6", 
+	.parent = TYPE_SYS_BUS_DEVICE, 
+	.instance_size = sizeof(sp6_state_t),
+	.instance_init = sp6_init, 
+	.class_init = sp6_class_init, };
 
 static void sp6_register_types(void) {
 	type_register_static(&reptar_sp6_info);

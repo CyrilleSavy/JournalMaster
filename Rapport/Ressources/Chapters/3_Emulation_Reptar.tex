@@ -1,0 +1,226 @@
+% Chapter Template
+
+\chapter{Emulation REPTAR} % Main chapter title
+
+\label{Chapitre 3} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+
+\lhead{ \emph{Emulation REPTAR}} % Change X to a consecutive number; this is for the header on each page - perhaps a shortened title
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1
+%----------------------------------------------------------------------------------------
+Ce chapitre s'intéresse principalement aux différents périphériques hardwares émulé de la REPTAR, à l'aide du framework QEmu.
+
+\section{Etapes}
+Voici les quelques étapes importantes développée au cours de ce laboratoire. 
+
+\subsection{Etape 2}
+Cette étape nous a permis d'émuler la FPGA (y compris le bus reliant la Spartan6 de l'OMAP).\\
+
+
+Voici quelques parties de code importants pour émuler la FPGA, ainsi que les différents registres qui la composent. Ici, le bus de communication est abstrait. On n'émule pas les différents signaux de communication (pas de bus AMBA ou AXI).\\
+
+Pour commencer, voici la déclaration de notre périphérique FPGA, avec les deux fonction d'initialisation correspondante : 
+\begin{lstlisting}[language=C,caption=Spartan 6 device declaration]
+
+static const TypeInfo reptar_sp6_info = { 
+	.name = "reptar_sp6", 
+	.parent = TYPE_SYS_BUS_DEVICE, 
+	.instance_size = sizeof(sp6_state_t),
+	.instance_init = sp6_init, 
+	.class_init = sp6_class_init, 
+	};
+
+static void sp6_class_init(ObjectClass *klass, void *data) {
+	SysBusDeviceClass *k = SYS_BUS_DEVICE_CLASS(klass);
+	k->init = sp6_initfn;
+}
+
+static void sp6_init(Object *obj) {
+	// do nothing...
+}	
+\end{lstlisting}
+
+On voit que l'on a une fonction "sp6\_initfn". Elle sera appelée à l'initialisation de la classe de périphérique de ce type.\\
+\pagebreak
+Voici le code de cette fonction :  
+\begin{lstlisting}[language=C,caption=Device initialization]
+
+static int sp6_initfn(SysBusDevice *sbd) {
+	DeviceState *dev = DEVICE(sbd);
+	sp6_state_t *s = OBJECT_CHECK(sp6_state_t, dev, "reptar_sp6");
+
+	memory_region_init_io(&s->iomem, OBJECT(s), &sp6_ops, s, "reptar_sp6",
+			0x1000);
+	sysbus_init_mmio(sbd, &s->iomem);
+
+	memset(&s->regs, 0, sizeof(s->regs));
+
+	sysbus_init_irq(sbd, &s->irq);
+
+	sp6_emul_init();
+	reptar_sp6_leds_init(s);
+	reptar_sp6_btns_init(s);
+	reptar_sp6_irq_init(s);
+	reptar_sp6_7segs_init(s);
+
+	DBG("sp6_initfn : initialization de la FPGA...\n");
+
+	return 0;
+}
+\end{lstlisting}
+
+On voit que cette fonction initialise tout les périphériques de la FPGA (LEDs, boutons, etc.) en plus de réserver sa mémoire. Les interruptions sont aussi initialisée dans cette section de code.\\
+
+Voyons maintenant les fonctions d'accès en lecture et en écriture sur le bus de la FPGA :
+\begin{lstlisting}[language=C,caption=FPGA bus IO access]
+
+static uint64_t sp6_read(void *opaque, hwaddr addr, unsigned size) {
+	uint64_t ret_value = 0;
+
+	// Récupération de la structure d'état
+	sp6_state_t *sp6_dev_struct_ptr = (sp6_state_t*) opaque;
+
+	switch ((uint8_t) addr) {
+	case SP6_IRQ_STATUS:
+		break;
+	case SP6_PUSH_BUT:
+		ret_value = reptar_sp6_btns_read();
+		break;
+	case SP6_IRQ_CTL:
+		ret_value = reptar_sp6_irq_read();
+		break;
+	case SP6_7SEG1:
+		reptar_sp6_7segs_read(SP6_7SEG1);
+		break;
+	case SP6_7SEG2:
+		ret_value = reptar_sp6_7segs_read(SP6_7SEG2);
+		break;
+	case SP6_7SEG3:
+		ret_value = reptar_sp6_7segs_read(SP6_7SEG3);
+		break;
+	case SP6_LCD_CONTROL:
+	case SP6_LCD_STATUS:
+		DBG("sp6_read %08x bytes @%08x\n", (uint32_t )size, (uint32_t )addr);
+		break;
+	case SP6_LED:
+		ret_value = reptar_sp6_leds_read();
+		break;
+	default:
+		DBG("Error, no valid register address!\n");
+		break;
+	}
+
+	return (uint64_t) ret_value;
+}
+
+static void sp6_write(void *opaque, hwaddr addr, uint64_t value, unsigned size) {
+	// Récupération de la structure d'état
+	sp6_state_t *sp6_dev_struct_ptr = (sp6_state_t*) opaque;
+
+	switch ((uint8_t) addr) {
+	case SP6_IRQ_STATUS:
+	case SP6_PUSH_BUT:
+		break;
+	case SP6_IRQ_CTL:
+		reptar_sp6_irq_write((uint8_t) value);
+		break;
+	case SP6_7SEG1:
+		reptar_sp6_7segs_write((uint8_t) value, SP6_7SEG1);
+		break;
+	case SP6_7SEG2:
+		reptar_sp6_7segs_write((uint8_t) value, SP6_7SEG2);
+		break;
+	case SP6_7SEG3:
+		reptar_sp6_7segs_write((uint8_t) value, SP6_7SEG3);
+		break;
+	case SP6_LCD_CONTROL:
+	case SP6_LCD_STATUS:
+		DBG("sp6_write %08x bytes, value = %08x, @%08x\n", (uint32_t )size,
+				(uint32_t )value, (uint32_t )addr);
+		break;
+	case SP6_LED:
+		reptar_sp6_leds_write((uint8_t) value);
+		break;
+	default:
+		DBG("Error, no valid register address!\n");
+		break;
+	}
+}
+\end{lstlisting}
+
+\pagebreak
+Voici ci-dessous la déclaration de la structure "opaque" qui sera utilisée dans nos différents modules d'émulation : 
+\begin{lstlisting}[language=C,caption=Opaque struct definition]
+typedef struct
+{
+    SysBusDevice busdev;
+    MemoryRegion iomem;
+    uint16_t regs[512];		/* 1KB (512 * 16bits registers) register map */
+    qemu_irq irq;
+} sp6_state_t;
+\end{lstlisting}
+
+Nous avons utilisé des registres de 16bits, comme donné dans le plan mémoire de la FPGA.
+Le decodage d'adresses est fait dans cette portion de code. On appelle les fonctions correspondantes aux périphériques concernés, soit en lecture, soit en écriture.\\
+
+\textit{\textbf{Remarque} : Une chose étrange est le type "uint64\_t", alors que notre architecture est de 32bits (bien que actuellement les processeurs ARM arrivent en 64 bits). Il faudra donc faire attention à l'alignement utilsé!}
+\pagebreak
+
+\subsection{Etape 3}
+Dans cette étape nous avons créé l'émulation des LEDs de la FPGA. Nous nous sommes basés sur les codes existants dans le répertoire. Voici ci-dessous le code d'émulation des LEDs : 
+
+\lstinputlisting[label=Qemu LEDs,caption=reptar\_sp6\_leds.h,language=C]{Ressources/Code_Source/reptar_sp6_leds.h}
+\vspace{0.5cm} 
+\lstinputlisting[label=Qemu LEDs,caption=reptar\_sp6\_leds.c,language=C]{Ressources/Code_Source/reptar_sp6_leds.c}
+\vspace{0.5cm} 
+
+L'émulation est extêmement simple. Cela consiste en trois fonctions : "init", "read" et "write". Nous avons utilisé les registres 16 bits fournis dans notre sructure "opaque" pour stocker l'états des 8 LEDs.
+
+La fonction "write" crée un commande JSON qui est envoyé par un socket vers l'interface Qt.
+
+TODO : Add itok screen
+
+\subsection{Etape 4}
+Dans cette étape nous avons émuler les boutons poussoirs de la FPGA. 
+
+Voici ci-dessous le code d'émulation des boutons : 
+
+\lstinputlisting[label=Qemu LEDs,caption=reptar\_sp6\_buttons.h,language=C]{Ressources/Code_Source/reptar_sp6_buttons.h}
+\vspace{0.5cm} 
+\lstinputlisting[label=Qemu LEDs,caption=reptar\_sp6\_buttons.c,language=C]{Ressources/Code_Source/reptar_sp6_buttons.c}
+\vspace{0.5cm} 
+
+Ce module est encore plus simple que les LEDs. Ici on n'a pas besoin de gérer l'écriture (on ne peut pas assigner une valeur à des boutons). La seule différence est que cette fois, on recois des évenenements JSON de l'interface Qt lorsqu'un bouton à été pressé.\\
+
+Nous avons aussi utilisé les registres de la structure "opaque" pour stocker les valeurs des boutons. Comme on peut aussi le constater, a chaque évennement de pression sur un bouton, nous appellons la fonction d'IRQ pour les boutons (voir étape suivante).
+
+\pagebreak
+\subsection{Etape 5}
+Cette étape nous à permis de mettre en place le système d'interruption. 
+Voici ci-dessous le code développé à cet effet : 
+
+\lstinputlisting[label=Qemu LEDs,caption=reptar\_sp6\_irq.h,language=C]{Ressources/Code_Source/reptar_sp6_irq.h}
+\vspace{0.5cm} 
+\lstinputlisting[label=Qemu LEDs,caption=reptar\_sp6\_irq.c,language=C]{Ressources/Code_Source/reptar_sp6_irq.c}
+\vspace{0.5cm} 
+
+Pour cette partie, nous avons utilisé la puissance des champs de bit du C. Il y a pour l'instant quatre fonctions principale : "read", "write", "init" et "irq\_button". Les fonction de lecture et écriture respective permettent d'accéder aux registre IRQ de la FPGA. La fonction "reptar\_sp6\_irq\_button" permet de générer une interruption à chaque évenement des boutons.  \\
+
+
+TODO : Add fonction lecture de l'état de l'IRQ
+
+\pagebreak
+\subsection{Etape 6}
+Dans cette étape nous avons émuler l'affichage 7 segments :
+\lstinputlisting[label=Qemu LEDs,caption=reptar\_sp6\_7segs.h,language=C]{Ressources/Code_Source/reptar_sp6_7segs.h}
+\vspace{0.5cm} 
+\lstinputlisting[label=Qemu LEDs,caption=reptar\_sp6\_7segs.c,language=C]{Ressources/Code_Source/reptar_sp6_7segs.c}
+\vspace{0.5cm} 
+
+La complexité de ce module est exactement identique à celui des LEDs (sauf qu'il faut juste gérer 3 registres identique). Nous avons, comme dans les autres modules, utilisé les registre de la structure "opaque" pour stocker l'état des registres. Le JSON nous permet de mettre à jour le programme "Qt", exatement comme pour les LEDs.\\
+
+\textit{\textbf{Remarques} : L'API proposé dans le document n'est pas très clair quant aux valeurs à envoyer. On ne peut pas gérer les segments séparément (ce qui serait logique)! }  
+
+\pagebreak
+\subsection{Etape 7}

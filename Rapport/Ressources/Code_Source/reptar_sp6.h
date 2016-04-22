@@ -25,8 +25,6 @@ typedef struct
     MemoryRegion iomem;
     uint16_t regs[512];		/* 1KB (512 * 16bits registers) register map */
     qemu_irq irq;
-    //int irq_pending;
-    //int irq_enabled;
 } sp6_state_t;
 
 /* Implemented registers addresses */

@@ -10,13 +10,6 @@
 
 #include "cJSON.h"
 
-typedef struct SEGState
-    {
-
-	uint8_t state;
-
-    } SEGState_t;
-
 uint8_t reptar_sp6_7segs_read(int segNb);
 void reptar_sp6_7segs_write(uint8_t value, int segNb);
 int reptar_sp6_7segs_init(void *opaque);
