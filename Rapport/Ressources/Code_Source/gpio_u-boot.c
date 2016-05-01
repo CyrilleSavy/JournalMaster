@@ -36,8 +36,8 @@
 int main(int argc, char *argv[]) {
 	printf("Start of the GPIO U-boot Standalone Application\n");
 
-	/* Donnée de l'exercice : on considère que u-boot initialise correctement les io
-	 * si ce n'était pas le cas, on devrait aussi utiliser les fonctions suivantes :
+	/* Donnee de l'exercice : on considere que u-boot initialise correctement les io
+	 * si ce n'etait pas le cas, on devrait aussi utiliser les fonctions suivantes :
 
 	 int gpio_request(int gpio, const char *label);
 	 int gpio_direction_input(unsigned gpio);
