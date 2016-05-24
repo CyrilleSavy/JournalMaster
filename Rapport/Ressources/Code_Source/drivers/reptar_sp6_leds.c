@@ -47,9 +47,9 @@ spin_lock(&reg_lock);
 
 /* to be completed */
 if (value == LED_OFF)
-	*led->reg &= (uint16_t) (~(0x0001 << pd->bit));
+	*led->reg &= (uint16_t)(~(0x0001 << pd->bit));
 else
-	*led->reg |= (uint16_t) (0x0001 << pd->bit);
+	*led->reg |= (uint16_t)(0x0001 << pd->bit);
 
 spin_unlock(&reg_lock);
 
@@ -116,15 +116,18 @@ static struct platform_driver reptar_sp6_led_driver = { .probe =
 	reptar_sp6_led_probe, .remove = reptar_sp6_led_remove, .driver = { .name =
 	"reptar_sp6_led", .owner = THIS_MODULE, }, };
 
+//#define __init
+//#define __exit
+
 /* static int __init reptar_sp6_leds_init(void) */
-int __init reptar_sp6_leds_init(struct platform_device *parent_fpga)
-{
+int __init reptar_sp6_leds_init(struct platform_device *parent_fpga) {
 int i;
 
 for (i = 0; i < SP6_NUM_LEDS; i++) {
 
 	reptar_sp6_leds[i] = platform_device_alloc("reptar_sp6_led", i);
-	platform_device_add_data(reptar_sp6_leds[i], &reptar_sp6_leds_pdata[i], sizeof(struct reptar_sp6_led_platdata));
+	platform_device_add_data(reptar_sp6_leds[i], &reptar_sp6_leds_pdata[i],
+			sizeof(struct reptar_sp6_led_platdata));
 
 	/* Set link to parent device */
 	reptar_sp6_leds[i]->dev.parent = &(parent_fpga->dev);
@@ -134,8 +137,7 @@ for (i = 0; i < SP6_NUM_LEDS; i++) {
 return platform_driver_register(&reptar_sp6_led_driver);
 }
 
-void __exit reptar_sp6_leds_exit(void)
-{
+void __exit reptar_sp6_leds_exit(void) {
 int i;
 
 for (i = 0; i < SP6_NUM_LEDS; i++) {

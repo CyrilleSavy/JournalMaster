@@ -26,21 +26,38 @@ extern int omapfb_xen_switch_domain(domid_t dom);
 
 static struct platform_device *reptar_sp6_btns;
 
+typedef union {
+	struct {
+		uint16_t irq_clear :1;
+		uint16_t irq_buttons :3;
+		uint16_t irq_status :1;
+		uint16_t irq_source :2;
+		uint16_t irq_enable :1;
+		uint16_t irq_reserved :8;
+	};
+	uint16_t irq_reg_byte;
+} sp6_irq_reg_t;
+
 struct reptar_sp6_buttons {
 	struct reptar_sp6_buttons_platdata *pdata;
 	int irq;
 	uint16_t *btns_reg;
-	uint16_t *irq_reg;
+	sp6_irq_reg_t *irq_reg;
 	struct input_dev *input;
 	uint16_t current_button;
 };
 
 /* Hard/immediate interrupt handler */
 static irqreturn_t reptar_sp6_buttons_irq(int irq, void *dev_id) {
-	struct reptar_sp6_buttons *dev = dev_id;
+	struct reptar_sp6_buttons *dev = (struct reptar_sp6_buttons *) dev_id;
 
 	/* to be completed */
-	dev->current_button = dev->btns_reg;
+	dev->current_button = (*dev->btns_reg & 0x00FF);
+
+	printk("Button interrupt!\n");
+
+	//Clear the interrupt in the FPGA
+	dev->irq_reg->irq_clear = 1;
 
 	return IRQ_WAKE_THREAD;
 }
@@ -54,6 +71,8 @@ static irqreturn_t reptar_sp6_buttons_irq_thread(int irq, void *dev_id) {
 
 	do {
 		pressed = fls(dev->current_button);
+		printk("Current buttons = %02x, pressed=%d\n", dev->current_button,
+				pressed);
 
 		if (!pressed)
 			return IRQ_HANDLED;
@@ -109,6 +128,11 @@ static int reptar_sp6_buttons_probe(struct platform_device *pdev) {
 	btns->irq_reg = ioremap(res->start + pdata->irq_reg_offset,
 			sizeof(uint16_t));
 
+	//check the ioremap
+	if (NULL == btns->btns_reg || NULL == btns->irq_reg) {
+		return -1;
+	}
+
 	gpio = platform_get_irq(fpga_pdev, 0);
 	btns->irq = gpio_to_irq(gpio);
 
@@ -120,8 +144,16 @@ static int reptar_sp6_buttons_probe(struct platform_device *pdev) {
 	/* Register 2 interrupt handlers (top, bottom) */
 	/* to be completed */
 	/* ... */
-	request_threaded_irq(btns->irq, reptar_sp6_buttons_irq,
-			reptar_sp6_buttons_irq_thread, 0, NULL, NULL);
+	ret = request_threaded_irq(btns->irq, reptar_sp6_buttons_irq,
+			reptar_sp6_buttons_irq_thread, IRQF_TRIGGER_RISING, NULL, btns);
+
+	if (ret < 0) {
+		dev_err(&pdev->dev, "failed to allocate IRQ\n");
+		return ret;
+	}
+
+	//enable the interrupt on the FPGA
+	btns->irq_reg->irq_enable = 1;
 
 	platform_set_drvdata(pdev, btns);
 
@@ -150,6 +182,9 @@ static int reptar_sp6_buttons_probe(struct platform_device *pdev) {
 		return ret;
 	}
 
+	// Last driver init
+	btns->current_button = 0x00;
+
 	return 0;
 }
 
@@ -175,11 +210,14 @@ static struct platform_driver reptar_sp6_buttons_driver = { .probe =
 		reptar_sp6_buttons_probe, .remove = reptar_sp6_buttons_remove, .driver =
 		{ .name = "reptar_sp6_buttons", .owner = THIS_MODULE, }, };
 
+//#define __init
+//#define __exit
+
 /* static int __init reptar_sp6_buttons_init(void) */
-int __init reptar_sp6_buttons_init(struct platform_device *parent_fpga)
-{
+int __init reptar_sp6_buttons_init(struct platform_device *parent_fpga) {
 	reptar_sp6_btns = platform_device_alloc("reptar_sp6_buttons", -1);
-	platform_device_add_data(reptar_sp6_btns, &reptar_sp6_btns_pdata, sizeof(reptar_sp6_btns_pdata));
+	platform_device_add_data(reptar_sp6_btns, &reptar_sp6_btns_pdata,
+			sizeof(reptar_sp6_btns_pdata));
 
 	/* Set link to parent device */
 	reptar_sp6_btns->dev.parent = &(parent_fpga->dev);
@@ -190,8 +228,7 @@ int __init reptar_sp6_buttons_init(struct platform_device *parent_fpga)
 }
 
 /* static void __exit reptar_sp6_buttons_exit(void) */
-void __exit reptar_sp6_buttons_exit(void)
-{
+void __exit reptar_sp6_buttons_exit(void) {
 	platform_device_unregister(reptar_sp6_btns);
 	platform_driver_unregister(&reptar_sp6_buttons_driver);
 }
